@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { ThemeSwitcher } from "@/components/shared/theme-switcher";
 import { useUIStore } from "@/store/ui";
 
@@ -9,21 +10,32 @@ describe("ThemeSwitcher", () => {
     document.documentElement.classList.remove("dark");
   });
 
-  it("renders the toggle button", () => {
+  it("renders a toggle button", () => {
     render(<ThemeSwitcher />);
     expect(screen.getByRole("button")).toBeInTheDocument();
   });
 
-  it("renders Sun icon when theme is light", () => {
+  it("shows Sun icon when theme is light", () => {
     render(<ThemeSwitcher />);
     const svg = screen.getByRole("button").querySelector("svg");
     expect(svg).toHaveClass("lucide-sun");
   });
 
-  it("renders Moon icon when theme is dark", () => {
+  it("shows Moon icon when theme is dark", () => {
     useUIStore.setState({ theme: "dark" });
     render(<ThemeSwitcher />);
     const svg = screen.getByRole("button").querySelector("svg");
     expect(svg).toHaveClass("lucide-moon");
+  });
+
+  it("toggles theme on click", async () => {
+    const user = userEvent.setup();
+    render(<ThemeSwitcher />);
+
+    await user.click(screen.getByRole("button"));
+    expect(useUIStore.getState().theme).toBe("dark");
+
+    await user.click(screen.getByRole("button"));
+    expect(useUIStore.getState().theme).toBe("light");
   });
 });
