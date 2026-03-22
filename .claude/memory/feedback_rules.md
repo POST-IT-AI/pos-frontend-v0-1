@@ -54,3 +54,15 @@ Configuration lives in `src/index.css` (no `tailwind.config` file). CSS variable
 
 **Why:** Tailwind v4 moved config to CSS-first approach.
 **How to apply:** Theme changes go in `src/index.css` under `@theme inline {}` and `:root` / `.dark` blocks.
+
+## No Hardcoding
+Never hardcode values — use constants, config, enums, or data from the API.
+
+**Why:** Hardcoded values are fragile, hard to maintain, and don't scale.
+**How to apply:** Extract magic numbers, strings, and repeated values into named constants or configuration.
+
+## Component Size Limit (500 Lines)
+If a component file exceeds 500 lines, split it into smaller sub-components.
+
+**Why:** Large components are hard to read, test, and maintain.
+**How to apply:** Extract logical sections (forms, tables, dialogs, etc.) into separate component files in the same directory. Keep each file focused on a single responsibility.
