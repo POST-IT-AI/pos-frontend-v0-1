@@ -24,7 +24,9 @@ export function Component() {
   const { t } = useTranslation("auth");
   const schema = useResetPasswordSchema();
   const location = useLocation();
-  const tokenFromState = (location.state as { token?: string } | null)?.token ?? "";
+  const state = location.state as { token?: string; username?: string } | null;
+  const tokenFromState = state?.token ?? "";
+  const usernameFromState = state?.username ?? "";
 
   const {
     register,
@@ -47,17 +49,17 @@ export function Component() {
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <input type="hidden" {...register("token")} />
+
           <div className="space-y-2">
-            <Label htmlFor="token">{t("resetPassword.token")}</Label>
+            <Label htmlFor="username">{t("resetPassword.username")}</Label>
             <Input
-              id="token"
+              id="username"
               type="text"
-              placeholder={t("resetPassword.tokenPlaceholder")}
-              {...register("token")}
+              value={usernameFromState}
+              disabled
+              readOnly
             />
-            {errors.token && (
-              <p className="text-sm text-destructive">{errors.token.message}</p>
-            )}
           </div>
 
           <div className="space-y-2">
