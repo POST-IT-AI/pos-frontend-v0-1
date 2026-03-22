@@ -15,41 +15,50 @@ vi.mock("sonner", () => ({
   toast: { success: vi.fn(), error: vi.fn() },
 }));
 
-// Mock the useLogin hook
+// Mock the useRegister hook
 const mockMutate = vi.fn();
 vi.mock("@/hooks/use-auth", () => ({
-  useLogin: () => ({
+  useRegister: () => ({
     mutate: mockMutate,
     isPending: false,
   }),
 }));
 
 // Import after mocks
-import { Component as LoginPage } from "./login";
+import { Component as RegisterPage } from "./index";
 
-describe("LoginPage", () => {
+describe("RegisterPage", () => {
   beforeEach(() => {
     mockMutate.mockClear();
   });
 
-  it("renders username and password fields", () => {
-    render(<LoginPage />);
+  it("renders all form fields", () => {
+    render(<RegisterPage />);
     expect(screen.getByLabelText("ชื่อผู้ใช้")).toBeInTheDocument();
     expect(screen.getByLabelText("รหัสผ่าน")).toBeInTheDocument();
+    expect(screen.getByLabelText("ชื่อ")).toBeInTheDocument();
+    expect(screen.getByLabelText("นามสกุล (ไม่บังคับ)")).toBeInTheDocument();
   });
 
   it("renders submit button", () => {
-    render(<LoginPage />);
+    render(<RegisterPage />);
     expect(
-      screen.getByRole("button", { name: "เข้าสู่ระบบ" }),
+      screen.getByRole("button", { name: "สมัครสมาชิก" }),
     ).toBeInTheDocument();
+  });
+
+  it("renders link to login page", () => {
+    render(<RegisterPage />);
+    const link = screen.getByRole("link", { name: "เข้าสู่ระบบ" });
+    expect(link).toBeInTheDocument();
+    expect(link).toHaveAttribute("href", "/login");
   });
 
   it("shows validation errors for empty submit", async () => {
     const user = userEvent.setup();
-    render(<LoginPage />);
+    render(<RegisterPage />);
 
-    await user.click(screen.getByRole("button", { name: "เข้าสู่ระบบ" }));
+    await user.click(screen.getByRole("button", { name: "สมัครสมาชิก" }));
 
     expect(
       await screen.findByText("ชื่อผู้ใช้ต้องมีอย่างน้อย 3 ตัวอักษร"),
@@ -57,30 +66,55 @@ describe("LoginPage", () => {
     expect(
       await screen.findByText("รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร"),
     ).toBeInTheDocument();
+    expect(
+      await screen.findByText("กรุณากรอกชื่อ"),
+    ).toBeInTheDocument();
     expect(mockMutate).not.toHaveBeenCalled();
   });
 
-  it("calls login mutate with valid data", async () => {
+  it("calls register mutate with valid data", async () => {
     const user = userEvent.setup();
-    render(<LoginPage />);
+    render(<RegisterPage />);
 
     await user.type(screen.getByLabelText("ชื่อผู้ใช้"), "testuser");
     await user.type(screen.getByLabelText("รหัสผ่าน"), "12345678");
-    await user.click(screen.getByRole("button", { name: "เข้าสู่ระบบ" }));
+    await user.type(screen.getByLabelText("ชื่อ"), "Test");
+    await user.type(screen.getByLabelText("นามสกุล (ไม่บังคับ)"), "User");
+    await user.click(screen.getByRole("button", { name: "สมัครสมาชิก" }));
 
     expect(mockMutate).toHaveBeenCalledWith({
       username: "testuser",
       password: "12345678",
+      first_name: "Test",
+      last_name: "User",
+    });
+  });
+
+  it("submits without last_name when left empty", async () => {
+    const user = userEvent.setup();
+    render(<RegisterPage />);
+
+    await user.type(screen.getByLabelText("ชื่อผู้ใช้"), "testuser");
+    await user.type(screen.getByLabelText("รหัสผ่าน"), "12345678");
+    await user.type(screen.getByLabelText("ชื่อ"), "Test");
+    await user.click(screen.getByRole("button", { name: "สมัครสมาชิก" }));
+
+    expect(mockMutate).toHaveBeenCalledWith({
+      username: "testuser",
+      password: "12345678",
+      first_name: "Test",
+      last_name: undefined,
     });
   });
 
   it("shows validation error for short username", async () => {
     const user = userEvent.setup();
-    render(<LoginPage />);
+    render(<RegisterPage />);
 
     await user.type(screen.getByLabelText("ชื่อผู้ใช้"), "ab");
     await user.type(screen.getByLabelText("รหัสผ่าน"), "12345678");
-    await user.click(screen.getByRole("button", { name: "เข้าสู่ระบบ" }));
+    await user.type(screen.getByLabelText("ชื่อ"), "Test");
+    await user.click(screen.getByRole("button", { name: "สมัครสมาชิก" }));
 
     expect(
       await screen.findByText("ชื่อผู้ใช้ต้องมีอย่างน้อย 3 ตัวอักษร"),
@@ -90,11 +124,12 @@ describe("LoginPage", () => {
 
   it("shows validation error for short password", async () => {
     const user = userEvent.setup();
-    render(<LoginPage />);
+    render(<RegisterPage />);
 
     await user.type(screen.getByLabelText("ชื่อผู้ใช้"), "testuser");
     await user.type(screen.getByLabelText("รหัสผ่าน"), "1234567");
-    await user.click(screen.getByRole("button", { name: "เข้าสู่ระบบ" }));
+    await user.type(screen.getByLabelText("ชื่อ"), "Test");
+    await user.click(screen.getByRole("button", { name: "สมัครสมาชิก" }));
 
     expect(
       await screen.findByText("รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร"),
