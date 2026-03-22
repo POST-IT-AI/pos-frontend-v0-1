@@ -46,3 +46,42 @@ export function useRegisterSchema() {
 }
 
 export type RegisterFormValues = z.infer<ReturnType<typeof useRegisterSchema>>;
+
+export function useForgotPasswordSchema() {
+  const { t } = useTranslation("auth");
+
+  return useMemo(
+    () =>
+      z.object({
+        username: z.string().min(1, t("validation.usernameRequired")),
+      }),
+    [t],
+  );
+}
+
+export type ForgotPasswordFormValues = z.infer<
+  ReturnType<typeof useForgotPasswordSchema>
+>;
+
+export function useResetPasswordSchema() {
+  const { t } = useTranslation("auth");
+
+  return useMemo(
+    () =>
+      z
+        .object({
+          token: z.string().min(1, t("validation.tokenRequired")),
+          new_password: z.string().min(6, t("validation.passwordMin6")),
+          confirmPassword: z.string().min(1, t("validation.passwordMismatch")),
+        })
+        .refine((data) => data.new_password === data.confirmPassword, {
+          message: t("validation.passwordMismatch"),
+          path: ["confirmPassword"],
+        }),
+    [t],
+  );
+}
+
+export type ResetPasswordFormValues = z.infer<
+  ReturnType<typeof useResetPasswordSchema>
+>;

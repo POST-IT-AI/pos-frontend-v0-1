@@ -56,3 +56,18 @@ export interface AuthUser {
   role: string;
   is_active: boolean;
 }
+
+export interface ForgotPasswordRequest {
+  username: string;
+}
+
+export interface ForgotPasswordResponse {
+  message: string;
+  reset_token?: string;
+  expires_at?: string;
+}
+
+export interface ResetPasswordRequest {
+  token: string;
+  new_password: string;
+}
