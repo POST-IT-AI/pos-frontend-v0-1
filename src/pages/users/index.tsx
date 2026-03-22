@@ -1,10 +1,13 @@
 import { PageHeader } from "@/components/shared/page-header";
+import { useTranslation } from "react-i18next";
 
 export function Component() {
+  const { t } = useTranslation("users");
+
   return (
     <div>
-      <PageHeader title="ผู้ใช้" description="จัดการผู้ใช้ระบบ" />
-      <p className="text-muted-foreground">ตารางผู้ใช้จะแสดงที่นี่</p>
+      <PageHeader title={t("title")} description={t("description")} />
+      <p className="text-muted-foreground">{t("placeholder.table")}</p>
     </div>
   );
 }

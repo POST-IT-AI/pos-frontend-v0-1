@@ -1,0 +1,8 @@
+{
+  "title": "Point of Sale",
+  "description": "POS Sales",
+  "placeholder": {
+    "productList": "Product list will appear here",
+    "cart": "Shopping cart will appear here"
+  }
+}

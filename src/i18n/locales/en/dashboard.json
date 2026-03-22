@@ -1,0 +1,10 @@
+{
+  "title": "Dashboard",
+  "description": "POS System Overview",
+  "stats": {
+    "todaySales": "Today's Sales",
+    "todayOrders": "Today's Orders",
+    "totalProducts": "Total Products",
+    "todayProfit": "Today's Profit"
+  }
+}

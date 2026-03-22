@@ -1,0 +1,10 @@
+{
+  "title": "แดชบอร์ด",
+  "description": "ภาพรวมระบบ POS",
+  "stats": {
+    "todaySales": "ยอดขายวันนี้",
+    "todayOrders": "ออเดอร์วันนี้",
+    "totalProducts": "สินค้าทั้งหมด",
+    "todayProfit": "กำไรวันนี้"
+  }
+}

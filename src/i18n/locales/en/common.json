@@ -1,0 +1,36 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "pos": "Point of Sale",
+    "products": "Products",
+    "orders": "Orders",
+    "users": "Users",
+    "settings": "Settings"
+  },
+  "actions": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "search": "Search",
+    "back": "Back",
+    "backToHome": "Back to Home"
+  },
+  "header": {
+    "profile": "Profile",
+    "logout": "Logout"
+  },
+  "system": {
+    "title": "POS System",
+    "waitingApi": "Waiting for API"
+  },
+  "notFound": {
+    "title": "404",
+    "description": "Page not found"
+  },
+  "language": {
+    "th": "ไทย",
+    "en": "English"
+  }
+}

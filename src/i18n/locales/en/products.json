@@ -1,0 +1,29 @@
+{
+  "title": "Products",
+  "description": "Manage product catalog",
+  "addProduct": "Add Product",
+  "newProduct": {
+    "title": "Add New Product",
+    "description": "Enter product details"
+  },
+  "placeholder": {
+    "table": "Product table will appear here",
+    "form": "Product form will appear here"
+  },
+  "toast": {
+    "createSuccess": "Product added successfully",
+    "createError": "Failed to add product",
+    "updateSuccess": "Product updated successfully",
+    "updateError": "Failed to update product",
+    "deleteSuccess": "Product deleted successfully",
+    "deleteError": "Failed to delete product"
+  },
+  "validation": {
+    "nameRequired": "Product name is required",
+    "priceMin": "Price must not be negative",
+    "costMin": "Cost must not be negative",
+    "skuRequired": "SKU is required",
+    "categoryRequired": "Please select a category",
+    "stockMin": "Stock quantity must not be negative"
+  }
+}

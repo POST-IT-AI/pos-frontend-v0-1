@@ -1,10 +1,13 @@
 import { PageHeader } from "@/components/shared/page-header";
+import { useTranslation } from "react-i18next";
 
 export function Component() {
+  const { t } = useTranslation("products");
+
   return (
     <div>
-      <PageHeader title="เพิ่มสินค้าใหม่" description="กรอกรายละเอียดสินค้า" />
-      <p className="text-muted-foreground">ฟอร์มเพิ่มสินค้าจะแสดงที่นี่</p>
+      <PageHeader title={t("newProduct.title")} description={t("newProduct.description")} />
+      <p className="text-muted-foreground">{t("placeholder.form")}</p>
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ordersApi } from "@/api/orders";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 export const orderKeys = {
   all: ["orders"] as const,
@@ -32,28 +33,30 @@ export function useOrder(id: string) {
 
 export function useCreateOrder() {
   const queryClient = useQueryClient();
+  const { t } = useTranslation("orders");
   return useMutation({
     mutationFn: ordersApi.create,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: orderKeys.lists() });
-      toast.success("สร้างออเดอร์สำเร็จ");
+      toast.success(t("toast.createSuccess"));
     },
     onError: () => {
-      toast.error("ไม่สามารถสร้างออเดอร์ได้");
+      toast.error(t("toast.createError"));
     },
   });
 }
 
 export function useCancelOrder() {
   const queryClient = useQueryClient();
+  const { t } = useTranslation("orders");
   return useMutation({
     mutationFn: ordersApi.cancel,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: orderKeys.all });
-      toast.success("ยกเลิกออเดอร์สำเร็จ");
+      toast.success(t("toast.cancelSuccess"));
     },
     onError: () => {
-      toast.error("ไม่สามารถยกเลิกออเดอร์ได้");
+      toast.error(t("toast.cancelError"));
     },
   });
 }

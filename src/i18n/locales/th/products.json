@@ -1,0 +1,29 @@
+{
+  "title": "สินค้า",
+  "description": "จัดการรายการสินค้า",
+  "addProduct": "เพิ่มสินค้า",
+  "newProduct": {
+    "title": "เพิ่มสินค้าใหม่",
+    "description": "กรอกรายละเอียดสินค้า"
+  },
+  "placeholder": {
+    "table": "ตารางสินค้าจะแสดงที่นี่",
+    "form": "ฟอร์มเพิ่มสินค้าจะแสดงที่นี่"
+  },
+  "toast": {
+    "createSuccess": "เพิ่มสินค้าสำเร็จ",
+    "createError": "ไม่สามารถเพิ่มสินค้าได้",
+    "updateSuccess": "อัปเดตสินค้าสำเร็จ",
+    "updateError": "ไม่สามารถอัปเดตสินค้าได้",
+    "deleteSuccess": "ลบสินค้าสำเร็จ",
+    "deleteError": "ไม่สามารถลบสินค้าได้"
+  },
+  "validation": {
+    "nameRequired": "กรุณากรอกชื่อสินค้า",
+    "priceMin": "ราคาต้องไม่ติดลบ",
+    "costMin": "ต้นทุนต้องไม่ติดลบ",
+    "skuRequired": "กรุณากรอก SKU",
+    "categoryRequired": "กรุณาเลือกหมวดหมู่",
+    "stockMin": "จำนวนสต็อกต้องไม่ติดลบ"
+  }
+}

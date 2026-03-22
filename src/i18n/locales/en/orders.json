@@ -1,0 +1,13 @@
+{
+  "title": "Orders",
+  "description": "Sales history",
+  "placeholder": {
+    "table": "Order table will appear here"
+  },
+  "toast": {
+    "createSuccess": "Order created successfully",
+    "createError": "Failed to create order",
+    "cancelSuccess": "Order cancelled successfully",
+    "cancelError": "Failed to cancel order"
+  }
+}

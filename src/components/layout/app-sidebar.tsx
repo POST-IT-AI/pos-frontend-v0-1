@@ -13,17 +13,18 @@ import { cn } from "@/lib/utils";
 import { useUIStore } from "@/store/ui";
 import { useAuthStore } from "@/store/auth";
 import { Button } from "@/components/ui/button";
+import { useTranslation } from "react-i18next";
 
 const navItems = [
-  { label: "แดชบอร์ด", icon: LayoutDashboard, href: "/dashboard" },
-  { label: "ขายสินค้า", icon: ShoppingCart, href: "/pos" },
-  { label: "สินค้า", icon: Package, href: "/products" },
-  { label: "ออเดอร์", icon: ClipboardList, href: "/orders" },
+  { labelKey: "nav.dashboard", icon: LayoutDashboard, href: "/dashboard" },
+  { labelKey: "nav.pos", icon: ShoppingCart, href: "/pos" },
+  { labelKey: "nav.products", icon: Package, href: "/products" },
+  { labelKey: "nav.orders", icon: ClipboardList, href: "/orders" },
 ];
 
 const adminItems = [
-  { label: "ผู้ใช้", icon: Users, href: "/users" },
-  { label: "ตั้งค่า", icon: Settings, href: "/settings" },
+  { labelKey: "nav.users", icon: Users, href: "/users" },
+  { labelKey: "nav.settings", icon: Settings, href: "/settings" },
 ];
 
 export function AppSidebar() {
@@ -31,6 +32,7 @@ export function AppSidebar() {
   const { sidebarCollapsed, toggleSidebar } = useUIStore();
   const user = useAuthStore((s) => s.user);
   const isAdmin = user?.role.toUpperCase() === "ADMIN";
+  const { t } = useTranslation("common");
 
   const allItems = isAdmin ? [...navItems, ...adminItems] : navItems;
 
@@ -43,7 +45,7 @@ export function AppSidebar() {
     >
       <div className="flex h-14 items-center justify-between border-b px-4">
         {!sidebarCollapsed && (
-          <span className="text-lg font-semibold">POS System</span>
+          <span className="text-lg font-semibold">{t("system.title")}</span>
         )}
         <Button
           variant="ghost"
@@ -62,6 +64,7 @@ export function AppSidebar() {
       <nav className="flex-1 space-y-1 p-2">
         {allItems.map((item) => {
           const isActive = location.pathname.startsWith(item.href);
+          const label = t(item.labelKey);
           return (
             <Link
               key={item.href}
@@ -73,10 +76,10 @@ export function AppSidebar() {
                   : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
                 sidebarCollapsed && "justify-center px-2",
               )}
-              title={sidebarCollapsed ? item.label : undefined}
+              title={sidebarCollapsed ? label : undefined}
             >
               <item.icon className="h-5 w-5 shrink-0" />
-              {!sidebarCollapsed && <span>{item.label}</span>}
+              {!sidebarCollapsed && <span>{label}</span>}
             </Link>
           );
         })}

@@ -1,7 +1,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
-  registerSchema,
+  useRegisterSchema,
   type RegisterFormValues,
 } from "@/lib/validations/auth";
 import { useRegister } from "@/hooks/use-auth";
@@ -17,9 +17,12 @@ import {
 } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 export function Component() {
   const registerMutation = useRegister();
+  const { t } = useTranslation("auth");
+  const registerSchema = useRegisterSchema();
 
   const {
     register,
@@ -41,17 +44,17 @@ export function Component() {
   return (
     <Card>
       <CardHeader className="text-center">
-        <CardTitle className="text-2xl">POS System</CardTitle>
-        <CardDescription>สมัครสมาชิกเพื่อเริ่มใช้งาน</CardDescription>
+        <CardTitle className="text-2xl">{t("register.title")}</CardTitle>
+        <CardDescription>{t("register.description")}</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="username">ชื่อผู้ใช้</Label>
+            <Label htmlFor="username">{t("register.username")}</Label>
             <Input
               id="username"
               type="text"
-              placeholder="ชื่อผู้ใช้"
+              placeholder={t("register.username")}
               autoComplete="username"
               {...register("username")}
             />
@@ -63,11 +66,11 @@ export function Component() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="password">รหัสผ่าน</Label>
+            <Label htmlFor="password">{t("register.password")}</Label>
             <Input
               id="password"
               type="password"
-              placeholder="รหัสผ่าน"
+              placeholder={t("register.password")}
               autoComplete="new-password"
               {...register("password")}
             />
@@ -79,11 +82,11 @@ export function Component() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="first_name">ชื่อ</Label>
+            <Label htmlFor="first_name">{t("register.firstName")}</Label>
             <Input
               id="first_name"
               type="text"
-              placeholder="ชื่อ"
+              placeholder={t("register.firstName")}
               autoComplete="given-name"
               {...register("first_name")}
             />
@@ -95,11 +98,11 @@ export function Component() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="last_name">นามสกุล (ไม่บังคับ)</Label>
+            <Label htmlFor="last_name">{t("register.lastName")}</Label>
             <Input
               id="last_name"
               type="text"
-              placeholder="นามสกุล"
+              placeholder={t("register.lastNamePlaceholder")}
               autoComplete="family-name"
               {...register("last_name")}
             />
@@ -118,13 +121,13 @@ export function Component() {
             {registerMutation.isPending && (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             )}
-            สมัครสมาชิก
+            {t("register.submit")}
           </Button>
         </form>
         <p className="mt-4 text-center text-sm text-muted-foreground">
-          มีบัญชีแล้ว?{" "}
+          {t("register.hasAccount")}{" "}
           <Link to="/login" className="text-primary hover:underline">
-            เข้าสู่ระบบ
+            {t("register.login")}
           </Link>
         </p>
       </CardContent>

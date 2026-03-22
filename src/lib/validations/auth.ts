@@ -1,30 +1,48 @@
 import { z } from "zod/v4";
+import { useTranslation } from "react-i18next";
+import { useMemo } from "react";
 
-export const loginSchema = z.object({
-  username: z
-    .string()
-    .min(3, "ชื่อผู้ใช้ต้องมีอย่างน้อย 3 ตัวอักษร")
-    .max(255, "ชื่อผู้ใช้ต้องไม่เกิน 255 ตัวอักษร"),
-  password: z.string().min(8, "รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร"),
-});
+export function useLoginSchema() {
+  const { t } = useTranslation("auth");
 
-export type LoginFormValues = z.infer<typeof loginSchema>;
+  return useMemo(
+    () =>
+      z.object({
+        username: z
+          .string()
+          .min(3, t("validation.usernameMin"))
+          .max(255, t("validation.usernameMax")),
+        password: z.string().min(8, t("validation.passwordMin")),
+      }),
+    [t],
+  );
+}
 
-export const registerSchema = z.object({
-  username: z
-    .string()
-    .min(3, "ชื่อผู้ใช้ต้องมีอย่างน้อย 3 ตัวอักษร")
-    .max(255, "ชื่อผู้ใช้ต้องไม่เกิน 255 ตัวอักษร"),
-  password: z.string().min(8, "รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร"),
-  first_name: z
-    .string()
-    .min(1, "กรุณากรอกชื่อ")
-    .max(255, "ชื่อต้องไม่เกิน 255 ตัวอักษร"),
-  last_name: z
-    .string()
-    .max(255, "นามสกุลต้องไม่เกิน 255 ตัวอักษร")
-    .optional()
-    .or(z.literal("")),
-});
+export type LoginFormValues = z.infer<ReturnType<typeof useLoginSchema>>;
 
-export type RegisterFormValues = z.infer<typeof registerSchema>;
+export function useRegisterSchema() {
+  const { t } = useTranslation("auth");
+
+  return useMemo(
+    () =>
+      z.object({
+        username: z
+          .string()
+          .min(3, t("validation.usernameMin"))
+          .max(255, t("validation.usernameMax")),
+        password: z.string().min(8, t("validation.passwordMin")),
+        first_name: z
+          .string()
+          .min(1, t("validation.firstNameRequired"))
+          .max(255, t("validation.firstNameMax")),
+        last_name: z
+          .string()
+          .max(255, t("validation.lastNameMax"))
+          .optional()
+          .or(z.literal("")),
+      }),
+    [t],
+  );
+}
+
+export type RegisterFormValues = z.infer<ReturnType<typeof useRegisterSchema>>;

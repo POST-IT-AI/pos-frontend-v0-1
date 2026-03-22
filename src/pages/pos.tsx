@@ -1,18 +1,21 @@
 import { PageHeader } from "@/components/shared/page-header";
+import { useTranslation } from "react-i18next";
 
 export function Component() {
+  const { t } = useTranslation("pos");
+
   return (
     <div>
-      <PageHeader title="ขายสินค้า" description="หน้าขาย POS" />
+      <PageHeader title={t("title")} description={t("description")} />
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2">
           <p className="text-muted-foreground">
-            รายการสินค้าจะแสดงที่นี่
+            {t("placeholder.productList")}
           </p>
         </div>
         <div>
           <p className="text-muted-foreground">
-            ตะกร้าสินค้าจะแสดงที่นี่
+            {t("placeholder.cart")}
           </p>
         </div>
       </div>

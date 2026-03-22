@@ -1,0 +1,7 @@
+{
+  "title": "Users",
+  "description": "Manage system users",
+  "placeholder": {
+    "table": "User table will appear here"
+  }
+}

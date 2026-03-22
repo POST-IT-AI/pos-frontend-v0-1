@@ -4,6 +4,7 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { Toaster } from "sonner";
 import { useState } from "react";
 import { router } from "@/routes";
+import "@/i18n";
 
 export default function App() {
   const [queryClient] = useState(

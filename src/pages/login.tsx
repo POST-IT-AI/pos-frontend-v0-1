@@ -1,6 +1,6 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { loginSchema, type LoginFormValues } from "@/lib/validations/auth";
+import { useLoginSchema, type LoginFormValues } from "@/lib/validations/auth";
 import { useLogin } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,9 +14,12 @@ import {
 } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 export function Component() {
   const login = useLogin();
+  const { t } = useTranslation("auth");
+  const loginSchema = useLoginSchema();
 
   const {
     register,
@@ -33,17 +36,17 @@ export function Component() {
   return (
     <Card>
       <CardHeader className="text-center">
-        <CardTitle className="text-2xl">POS System</CardTitle>
-        <CardDescription>เข้าสู่ระบบเพื่อเริ่มใช้งาน</CardDescription>
+        <CardTitle className="text-2xl">{t("login.title")}</CardTitle>
+        <CardDescription>{t("login.description")}</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="username">ชื่อผู้ใช้</Label>
+            <Label htmlFor="username">{t("login.username")}</Label>
             <Input
               id="username"
               type="text"
-              placeholder="ชื่อผู้ใช้"
+              placeholder={t("login.username")}
               autoComplete="username"
               {...register("username")}
             />
@@ -55,11 +58,11 @@ export function Component() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="password">รหัสผ่าน</Label>
+            <Label htmlFor="password">{t("login.password")}</Label>
             <Input
               id="password"
               type="password"
-              placeholder="รหัสผ่าน"
+              placeholder={t("login.password")}
               autoComplete="current-password"
               {...register("password")}
             />
@@ -74,13 +77,13 @@ export function Component() {
             {login.isPending && (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             )}
-            เข้าสู่ระบบ
+            {t("login.submit")}
           </Button>
         </form>
         <p className="mt-4 text-center text-sm text-muted-foreground">
-          ยังไม่มีบัญชี?{" "}
+          {t("login.noAccount")}{" "}
           <Link to="/register" className="text-primary hover:underline">
-            สมัครสมาชิก
+            {t("login.register")}
           </Link>
         </p>
       </CardContent>

@@ -1,0 +1,36 @@
+{
+  "nav": {
+    "dashboard": "แดชบอร์ด",
+    "pos": "ขายสินค้า",
+    "products": "สินค้า",
+    "orders": "ออเดอร์",
+    "users": "ผู้ใช้",
+    "settings": "ตั้งค่า"
+  },
+  "actions": {
+    "save": "บันทึก",
+    "cancel": "ยกเลิก",
+    "delete": "ลบ",
+    "edit": "แก้ไข",
+    "add": "เพิ่ม",
+    "search": "ค้นหา",
+    "back": "กลับ",
+    "backToHome": "กลับหน้าหลัก"
+  },
+  "header": {
+    "profile": "โปรไฟล์",
+    "logout": "ออกจากระบบ"
+  },
+  "system": {
+    "title": "POS System",
+    "waitingApi": "รอเชื่อมต่อ API"
+  },
+  "notFound": {
+    "title": "404",
+    "description": "ไม่พบหน้าที่คุณต้องการ"
+  },
+  "language": {
+    "th": "ไทย",
+    "en": "English"
+  }
+}

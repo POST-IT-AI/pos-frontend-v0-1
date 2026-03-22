@@ -1,0 +1,7 @@
+{
+  "title": "Settings",
+  "description": "System settings",
+  "placeholder": {
+    "content": "Settings page will appear here"
+  }
+}

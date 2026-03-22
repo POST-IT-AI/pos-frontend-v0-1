@@ -1,9 +1,15 @@
 import { describe, it, expect } from "vitest";
-import { loginSchema, registerSchema } from "./auth";
+import { renderHook } from "@testing-library/react";
+import { useLoginSchema, useRegisterSchema } from "./auth";
 
 describe("loginSchema", () => {
+  function getLoginSchema() {
+    const { result } = renderHook(() => useLoginSchema());
+    return result.current;
+  }
+
   it("accepts valid input", () => {
-    const result = loginSchema.safeParse({
+    const result = getLoginSchema().safeParse({
       username: "testuser",
       password: "12345678",
     });
@@ -11,7 +17,7 @@ describe("loginSchema", () => {
   });
 
   it("rejects username shorter than 3 chars", () => {
-    const result = loginSchema.safeParse({
+    const result = getLoginSchema().safeParse({
       username: "ab",
       password: "12345678",
     });
@@ -19,7 +25,7 @@ describe("loginSchema", () => {
   });
 
   it("rejects empty username", () => {
-    const result = loginSchema.safeParse({
+    const result = getLoginSchema().safeParse({
       username: "",
       password: "12345678",
     });
@@ -27,7 +33,7 @@ describe("loginSchema", () => {
   });
 
   it("rejects password shorter than 8 chars", () => {
-    const result = loginSchema.safeParse({
+    const result = getLoginSchema().safeParse({
       username: "testuser",
       password: "1234567",
     });
@@ -35,7 +41,7 @@ describe("loginSchema", () => {
   });
 
   it("rejects empty password", () => {
-    const result = loginSchema.safeParse({
+    const result = getLoginSchema().safeParse({
       username: "testuser",
       password: "",
     });
@@ -43,7 +49,7 @@ describe("loginSchema", () => {
   });
 
   it("accepts username at boundary (3 chars)", () => {
-    const result = loginSchema.safeParse({
+    const result = getLoginSchema().safeParse({
       username: "abc",
       password: "12345678",
     });
@@ -51,7 +57,7 @@ describe("loginSchema", () => {
   });
 
   it("accepts password at boundary (8 chars)", () => {
-    const result = loginSchema.safeParse({
+    const result = getLoginSchema().safeParse({
       username: "testuser",
       password: "12345678",
     });
@@ -60,8 +66,13 @@ describe("loginSchema", () => {
 });
 
 describe("registerSchema", () => {
+  function getRegisterSchema() {
+    const { result } = renderHook(() => useRegisterSchema());
+    return result.current;
+  }
+
   it("accepts valid input with all fields", () => {
-    const result = registerSchema.safeParse({
+    const result = getRegisterSchema().safeParse({
       username: "testuser",
       password: "12345678",
       first_name: "Test",
@@ -71,7 +82,7 @@ describe("registerSchema", () => {
   });
 
   it("accepts valid input without last_name", () => {
-    const result = registerSchema.safeParse({
+    const result = getRegisterSchema().safeParse({
       username: "testuser",
       password: "12345678",
       first_name: "Test",
@@ -80,7 +91,7 @@ describe("registerSchema", () => {
   });
 
   it("accepts empty string for last_name", () => {
-    const result = registerSchema.safeParse({
+    const result = getRegisterSchema().safeParse({
       username: "testuser",
       password: "12345678",
       first_name: "Test",
@@ -90,7 +101,7 @@ describe("registerSchema", () => {
   });
 
   it("rejects empty first_name", () => {
-    const result = registerSchema.safeParse({
+    const result = getRegisterSchema().safeParse({
       username: "testuser",
       password: "12345678",
       first_name: "",
@@ -99,7 +110,7 @@ describe("registerSchema", () => {
   });
 
   it("rejects username shorter than 3 chars", () => {
-    const result = registerSchema.safeParse({
+    const result = getRegisterSchema().safeParse({
       username: "ab",
       password: "12345678",
       first_name: "Test",
@@ -108,7 +119,7 @@ describe("registerSchema", () => {
   });
 
   it("rejects password shorter than 8 chars", () => {
-    const result = registerSchema.safeParse({
+    const result = getRegisterSchema().safeParse({
       username: "testuser",
       password: "1234567",
       first_name: "Test",
@@ -117,7 +128,7 @@ describe("registerSchema", () => {
   });
 
   it("accepts first_name at boundary (1 char)", () => {
-    const result = registerSchema.safeParse({
+    const result = getRegisterSchema().safeParse({
       username: "abc",
       password: "12345678",
       first_name: "T",

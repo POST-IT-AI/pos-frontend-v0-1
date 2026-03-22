@@ -1,10 +1,13 @@
 import { PageHeader } from "@/components/shared/page-header";
+import { useTranslation } from "react-i18next";
 
 export function Component() {
+  const { t } = useTranslation("settings");
+
   return (
     <div>
-      <PageHeader title="ตั้งค่า" description="ตั้งค่าระบบ" />
-      <p className="text-muted-foreground">หน้าตั้งค่าจะแสดงที่นี่</p>
+      <PageHeader title={t("title")} description={t("description")} />
+      <p className="text-muted-foreground">{t("placeholder.content")}</p>
     </div>
   );
 }
