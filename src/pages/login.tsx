@@ -13,6 +13,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export function Component() {
   const login = useLogin();
@@ -76,6 +77,12 @@ export function Component() {
             เข้าสู่ระบบ
           </Button>
         </form>
+        <p className="mt-4 text-center text-sm text-muted-foreground">
+          ยังไม่มีบัญชี?{" "}
+          <Link to="/register" className="text-primary hover:underline">
+            สมัครสมาชิก
+          </Link>
+        </p>
       </CardContent>
     </Card>
   );

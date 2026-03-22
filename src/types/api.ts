@@ -41,6 +41,13 @@ export interface RefreshRequest {
   refresh_token: string;
 }
 
+export interface RegisterRequest {
+  username: string;
+  password: string;
+  first_name: string;
+  last_name?: string;
+}
+
 export interface AuthUser {
   id: number;
   username: string;

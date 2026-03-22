@@ -2,7 +2,8 @@ import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/store/auth";
 import { authApi } from "@/api/auth";
-import type { LoginRequest } from "@/types/api";
+import { usersApi } from "@/api/users";
+import type { LoginRequest, RegisterRequest } from "@/types/api";
 import { toast } from "sonner";
 import { isAxiosError } from "axios";
 
@@ -37,6 +38,29 @@ export function useLogin() {
       let message = "เกิดข้อผิดพลาด กรุณาลองใหม่";
       if (isAxiosError(error) && error.response?.status === 401) {
         message = "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง";
+      }
+      toast.error(message);
+    },
+  });
+}
+
+export function useRegister() {
+  const navigate = useNavigate();
+
+  return useMutation({
+    mutationFn: (data: RegisterRequest) => usersApi.register(data),
+    onSuccess: () => {
+      toast.success("สมัครสมาชิกสำเร็จ กรุณาเข้าสู่ระบบ");
+      navigate("/login");
+    },
+    onError: (error) => {
+      let message = "เกิดข้อผิดพลาด กรุณาลองใหม่";
+      if (isAxiosError(error)) {
+        if (error.response?.status === 409) {
+          message = "ชื่อผู้ใช้นี้ถูกใช้งานแล้ว";
+        } else if (error.response?.status === 400) {
+          message = "ข้อมูลไม่ถูกต้อง กรุณาตรวจสอบอีกครั้ง";
+        }
       }
       toast.error(message);
     },
