@@ -83,11 +83,8 @@ describe("ForgotPasswordPage", () => {
     expect(mockMutate).toHaveBeenCalledWith({ username: "testuser" });
   });
 
-  it("renders page title and description", () => {
+  it("renders page title", () => {
     render(<ForgotPasswordPage />);
     expect(screen.getByText("ลืมรหัสผ่าน")).toBeInTheDocument();
-    expect(
-      screen.getByText("กรอกชื่อผู้ใช้เพื่อรับ reset token"),
-    ).toBeInTheDocument();
   });
 });

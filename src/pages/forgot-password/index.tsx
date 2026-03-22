@@ -11,7 +11,6 @@ import { Label } from "@/components/ui/label";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -40,7 +39,6 @@ export function Component() {
     <Card>
       <CardHeader className="text-center">
         <CardTitle className="text-2xl">{t("forgotPassword.title")}</CardTitle>
-        <CardDescription>{t("forgotPassword.description")}</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
