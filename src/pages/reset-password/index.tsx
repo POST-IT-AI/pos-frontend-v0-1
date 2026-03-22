@@ -7,6 +7,7 @@ import {
 import { useResetPassword } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import {
   Card,
@@ -64,9 +65,8 @@ export function Component() {
 
           <div className="space-y-2">
             <Label htmlFor="new_password">{t("resetPassword.newPassword")}</Label>
-            <Input
+            <PasswordInput
               id="new_password"
-              type="password"
               placeholder={t("resetPassword.newPassword")}
               autoComplete="new-password"
               {...register("new_password")}
@@ -82,9 +82,8 @@ export function Component() {
             <Label htmlFor="confirmPassword">
               {t("resetPassword.confirmPassword")}
             </Label>
-            <Input
+            <PasswordInput
               id="confirmPassword"
-              type="password"
               placeholder={t("resetPassword.confirmPassword")}
               autoComplete="new-password"
               {...register("confirmPassword")}
