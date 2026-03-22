@@ -1,3 +1,11 @@
+---
+feature: forgot-password
+status: done
+created: 2026-03-22 19:53:53
+description: ระบบลืมรหัสผ่าน โดยมี 2 endpoints - POST /forgot-password (รับ email/username, สร้าง reset token) และ POST /reset-password (รับ token + password ใหม่, เปลี่ยนรหัส) ต้องมี entity สำหรับเก็บ reset token, มี expiry time, และใช้ได้ครั้งเดียว
+---
+
+
 # Feature Plan: Forgot Password
 
 ## Context

@@ -34,6 +34,19 @@ After completing the plan, save it as a markdown file at:
 
 Where `<feature-slug>` is a kebab-case version of the feature name (e.g., `product-search`, `receipt-printing`, `daily-report`).
 
+The saved file must include a frontmatter block at the top:
+
+```markdown
+---
+feature: <feature-slug>
+status: to-do          # to-do | in-progress | in-review | done
+created: YYYY-MM-DD HH:MM:SS
+description: <brief description of the feature in Thai or English>
+---
+```
+
+Update the `status` field whenever the feature status changes.
+
 ### Rules
 - Follow all project conventions from CLAUDE.md.
 - Prefer reusing existing patterns (check `src/hooks/`, `src/api/`, `src/lib/validations/` for examples).
