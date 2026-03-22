@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { buttonVariants } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button-variants";
 import { useTranslation } from "react-i18next";
 
 export function Component() {
