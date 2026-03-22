@@ -80,12 +80,17 @@ export function Component() {
             {t("login.submit")}
           </Button>
         </form>
-        <p className="mt-4 text-center text-sm text-muted-foreground">
-          {t("login.noAccount")}{" "}
-          <Link to="/register" className="text-primary hover:underline">
-            {t("login.register")}
+        <div className="mt-4 flex flex-col items-center gap-2 text-sm text-muted-foreground">
+          <p>
+            {t("login.noAccount")}{" "}
+            <Link to="/register" className="text-primary hover:underline">
+              {t("login.register")}
+            </Link>
+          </p>
+          <Link to="/forgot-password" className="text-primary hover:underline">
+            {t("login.forgotPassword")}
           </Link>
-        </p>
+        </div>
       </CardContent>
     </Card>
   );

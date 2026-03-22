@@ -1,6 +1,11 @@
 import { describe, it, expect } from "vitest";
 import { renderHook } from "@testing-library/react";
-import { useLoginSchema, useRegisterSchema } from "./auth";
+import {
+  useLoginSchema,
+  useRegisterSchema,
+  useForgotPasswordSchema,
+  useResetPasswordSchema,
+} from "./auth";
 
 describe("loginSchema", () => {
   function getLoginSchema() {
@@ -134,5 +139,92 @@ describe("registerSchema", () => {
       first_name: "T",
     });
     expect(result.success).toBe(true);
+  });
+});
+
+describe("forgotPasswordSchema", () => {
+  function getSchema() {
+    const { result } = renderHook(() => useForgotPasswordSchema());
+    return result.current;
+  }
+
+  it("accepts valid username", () => {
+    const result = getSchema().safeParse({ username: "testuser" });
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects empty username", () => {
+    const result = getSchema().safeParse({ username: "" });
+    expect(result.success).toBe(false);
+  });
+
+  it("accepts single character username", () => {
+    const result = getSchema().safeParse({ username: "a" });
+    expect(result.success).toBe(true);
+  });
+});
+
+describe("resetPasswordSchema", () => {
+  function getSchema() {
+    const { result } = renderHook(() => useResetPasswordSchema());
+    return result.current;
+  }
+
+  it("accepts valid input", () => {
+    const result = getSchema().safeParse({
+      token: "sometoken",
+      new_password: "abc123",
+      confirmPassword: "abc123",
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects empty token", () => {
+    const result = getSchema().safeParse({
+      token: "",
+      new_password: "abc123",
+      confirmPassword: "abc123",
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects password shorter than 6 chars", () => {
+    const result = getSchema().safeParse({
+      token: "sometoken",
+      new_password: "12345",
+      confirmPassword: "12345",
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("accepts password at boundary (6 chars)", () => {
+    const result = getSchema().safeParse({
+      token: "sometoken",
+      new_password: "abc123",
+      confirmPassword: "abc123",
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects when passwords do not match", () => {
+    const result = getSchema().safeParse({
+      token: "sometoken",
+      new_password: "password1",
+      confirmPassword: "password2",
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("returns error on confirmPassword path when passwords mismatch", () => {
+    const result = getSchema().safeParse({
+      token: "sometoken",
+      new_password: "password1",
+      confirmPassword: "password2",
+    });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      const paths = result.error.issues.map((i) => i.path.join("."));
+      expect(paths).toContain("confirmPassword");
+    }
   });
 });

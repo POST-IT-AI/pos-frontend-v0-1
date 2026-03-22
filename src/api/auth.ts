@@ -5,6 +5,9 @@ import type {
   LoginResponse,
   RefreshRequest,
   AuthUser,
+  ForgotPasswordRequest,
+  ForgotPasswordResponse,
+  ResetPasswordRequest,
 } from "@/types/api";
 
 export const authApi = {
@@ -22,4 +25,17 @@ export const authApi = {
     authAxios
       .post<BackendResponse<LoginResponse>>("/api/v1/auth/refresh", data)
       .then((r) => r.data.data),
+
+  forgotPassword: (data: ForgotPasswordRequest) =>
+    authAxios
+      .post<BackendResponse<ForgotPasswordResponse>>(
+        "/api/v1/auth/forgot-password",
+        data,
+      )
+      .then((r) => r.data.data),
+
+  resetPassword: (data: ResetPasswordRequest) =>
+    authAxios
+      .post<BackendResponse<null>>("/api/v1/auth/reset-password", data)
+      .then((r) => r.data),
 };
