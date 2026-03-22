@@ -6,9 +6,12 @@ type Theme = "light" | "dark";
 
 interface UIState {
   sidebarCollapsed: boolean;
+  sidebarOpen: boolean;
   language: "th" | "en";
   theme: Theme;
   toggleSidebar: () => void;
+  setSidebarOpen: (open: boolean) => void;
+  toggleSidebarOpen: () => void;
   setLanguage: (lang: "th" | "en") => void;
   setTheme: (theme: Theme) => void;
   toggleTheme: () => void;
@@ -22,10 +25,13 @@ export const useUIStore = create<UIState>()(
   persist(
     (set) => ({
       sidebarCollapsed: false,
+      sidebarOpen: false,
       language: "th",
       theme: "light",
       toggleSidebar: () =>
         set((s) => ({ sidebarCollapsed: !s.sidebarCollapsed })),
+      setSidebarOpen: (open) => set({ sidebarOpen: open }),
+      toggleSidebarOpen: () => set((s) => ({ sidebarOpen: !s.sidebarOpen })),
       setLanguage: (lang) => {
         i18n.changeLanguage(lang);
         set({ language: lang });

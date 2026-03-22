@@ -23,7 +23,15 @@ Use the `/react-best-practices` skill to guide your implementation. This means:
 
 Implement the feature — write all necessary code (types, API modules, hooks, validations, components, pages, routes).
 
-### Step 3: Code Quality Review
+### Step 3: Responsive Design
+
+After implementing, run the `/responsive` skill on any new pages or layout components created:
+- Apply mobile/tablet/desktop breakpoints to all new UI.
+- Follow the breakpoint strategy in `.claude/commands/responsive.md`.
+- Ensure new pages use `p-4 md:p-6` padding, responsive grids, and touch-friendly targets.
+- Skip this step only if the feature adds no new UI.
+
+### Step 4: Code Quality Review
 
 After implementation is complete, run the `/simplify` skill to review the changed code:
 - Check for code reuse opportunities.
@@ -31,9 +39,9 @@ After implementation is complete, run the `/simplify` skill to review the change
 - Remove unnecessary complexity.
 - Apply any improvements suggested.
 
-### Step 4: Verify Build
+### Step 5: Verify Build
 
-#### 4a. ESLint
+#### 5a. ESLint
 ```bash
 pnpm lint
 ```
@@ -42,7 +50,7 @@ pnpm lint
 - If you encounter errors that are difficult to resolve, use `model: "opus"` in an Agent tool call to get help fixing them.
 - Re-run `pnpm lint` to confirm all errors are resolved.
 
-#### 4b. TypeScript Check + Build
+#### 5b. TypeScript Check + Build
 ```bash
 pnpm build
 ```
@@ -51,12 +59,12 @@ pnpm build
 - If there are hard-to-fix type errors, use `model: "opus"` in an Agent tool call to get help fixing them.
 - Re-run `pnpm build` until it passes cleanly.
 
-#### 4c. Post-fix Quality Check
-- If any files were modified during Step 4a or 4b, run `/simplify` again to ensure fixes didn't degrade code quality.
+#### 5c. Post-fix Quality Check
+- If any files were modified during Step 5a or 5b, run `/simplify` again to ensure fixes didn't degrade code quality.
 - Re-run `pnpm build` once more to confirm everything still passes.
 - Skip this if no fixes were needed.
 
-### Step 5: Report
+### Step 6: Report
 
 After everything passes, report to the user:
 - What was implemented (files created/modified).
