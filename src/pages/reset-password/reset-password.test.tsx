@@ -36,7 +36,7 @@ vi.mock("@/hooks/use-auth", () => ({
 }));
 
 // Import after mocks
-import { Component as ResetPasswordPage } from "./reset-password";
+import { Component as ResetPasswordPage } from "./index";
 
 describe("ResetPasswordPage", () => {
   beforeEach(() => {
