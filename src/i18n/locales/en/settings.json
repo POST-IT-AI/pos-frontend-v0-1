@@ -1,7 +1,12 @@
 {
   "title": "Settings",
   "description": "System settings",
-  "placeholder": {
-    "content": "Settings page will appear here"
+  "theme": {
+    "title": "Appearance",
+    "description": "Choose your preferred theme",
+    "light": "Light Mode",
+    "lightDescription": "Clean and bright interface",
+    "dark": "Dark Mode",
+    "darkDescription": "Easy on the eyes"
   }
 }

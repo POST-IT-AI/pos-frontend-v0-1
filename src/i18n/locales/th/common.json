@@ -32,5 +32,10 @@
   "language": {
     "th": "ไทย",
     "en": "English"
+  },
+  "theme": {
+    "label": "ธีม",
+    "light": "สว่าง",
+    "dark": "มืด"
   }
 }

@@ -4,6 +4,7 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { Toaster } from "sonner";
 import { useState } from "react";
 import { router } from "@/routes";
+import { ThemeInitializer } from "@/components/shared/theme-initializer";
 import "@/i18n";
 
 export default function App() {
@@ -19,6 +20,7 @@ export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <RouterProvider router={router} />
+      <ThemeInitializer />
       <Toaster position="top-right" richColors />
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
