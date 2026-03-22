@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { LanguageSwitcher } from "@/components/shared/language-switcher";
+import { ThemeSwitcher } from "@/components/shared/theme-switcher";
 
 export function AppHeader() {
   const user = useAuthStore((s) => s.user);
@@ -30,6 +31,7 @@ export function AppHeader() {
       <div />
 
       <div className="flex items-center gap-2">
+        <ThemeSwitcher />
         <LanguageSwitcher />
 
         <DropdownMenu>

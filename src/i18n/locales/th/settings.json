@@ -1,7 +1,12 @@
 {
   "title": "ตั้งค่า",
   "description": "ตั้งค่าระบบ",
-  "placeholder": {
-    "content": "หน้าตั้งค่าจะแสดงที่นี่"
+  "theme": {
+    "title": "รูปลักษณ์",
+    "description": "เลือกธีมที่คุณต้องการ",
+    "light": "โหมดสว่าง",
+    "lightDescription": "อินเทอร์เฟซสะอาดและสว่าง",
+    "dark": "โหมดมืด",
+    "darkDescription": "ถนอมสายตา"
   }
 }
