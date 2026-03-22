@@ -1,0 +1,75 @@
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { productsApi } from "@/api/products";
+import { toast } from "sonner";
+
+export const productKeys = {
+  all: ["products"] as const,
+  lists: () => [...productKeys.all, "list"] as const,
+  list: (filters: Record<string, unknown>) =>
+    [...productKeys.lists(), filters] as const,
+  details: () => [...productKeys.all, "detail"] as const,
+  detail: (id: string) => [...productKeys.details(), id] as const,
+};
+
+export function useProducts(filters?: {
+  categoryId?: string;
+  search?: string;
+  page?: number;
+  limit?: number;
+}) {
+  return useQuery({
+    queryKey: productKeys.list(filters ?? {}),
+    queryFn: () => productsApi.getAll(filters),
+  });
+}
+
+export function useProduct(id: string) {
+  return useQuery({
+    queryKey: productKeys.detail(id),
+    queryFn: () => productsApi.getById(id),
+    enabled: !!id,
+  });
+}
+
+export function useCreateProduct() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: productsApi.create,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: productKeys.lists() });
+      toast.success("เพิ่มสินค้าสำเร็จ");
+    },
+    onError: () => {
+      toast.error("ไม่สามารถเพิ่มสินค้าได้");
+    },
+  });
+}
+
+export function useUpdateProduct() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: Parameters<typeof productsApi.update>[1] }) =>
+      productsApi.update(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: productKeys.all });
+      toast.success("อัปเดตสินค้าสำเร็จ");
+    },
+    onError: () => {
+      toast.error("ไม่สามารถอัปเดตสินค้าได้");
+    },
+  });
+}
+
+export function useDeleteProduct() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: productsApi.delete,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: productKeys.lists() });
+      toast.success("ลบสินค้าสำเร็จ");
+    },
+    onError: () => {
+      toast.error("ไม่สามารถลบสินค้าได้");
+    },
+  });
+}

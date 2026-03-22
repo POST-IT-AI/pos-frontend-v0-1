@@ -1,0 +1,1 @@
+- [feedback_rules.md](feedback_rules.md) — Project coding rules and conventions for the POS system
