@@ -1,7 +1,9 @@
-import { LogOut, User } from "lucide-react";
+import { LogOut, Menu, User } from "lucide-react";
 import { useAuthStore } from "@/store/auth";
 import { useLogout } from "@/hooks/use-auth";
+import { useUIStore } from "@/store/ui";
 import { useTranslation } from "react-i18next";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,6 +18,7 @@ import { ThemeSwitcher } from "@/components/shared/theme-switcher";
 export function AppHeader() {
   const user = useAuthStore((s) => s.user);
   const logout = useLogout();
+  const { toggleSidebarOpen } = useUIStore();
   const { t } = useTranslation("common");
 
   const displayName = user
@@ -27,8 +30,17 @@ export function AppHeader() {
     : "";
 
   return (
-    <header className="flex h-14 items-center justify-between border-b bg-background px-6">
-      <div />
+    <header className="flex h-14 items-center justify-between border-b bg-background px-4 md:px-6">
+      {/* Mobile: hamburger to open sidebar */}
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={toggleSidebarOpen}
+        className="md:hidden"
+      >
+        <Menu className="h-5 w-5" />
+      </Button>
+      <div className="hidden md:block" />
 
       <div className="flex items-center gap-2">
         <ThemeSwitcher />
