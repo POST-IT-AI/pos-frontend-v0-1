@@ -36,6 +36,8 @@ pnpm build
 
 Once the build passes with zero errors:
 
+> **Model Switch:** At the start of this step, switch to Haiku model by invoking an Agent tool call with `model: "haiku"` to execute all git commands below.
+
 #### 2a. Check current status
 ```bash
 git status
@@ -95,6 +97,8 @@ git push origin --delete <branch-name>
 - This keeps the repository clean by removing branches that have already been merged.
 
 ### Step 3: Report
+
+> **Model Switch:** At the start of this step, switch back to Sonnet model by invoking an Agent tool call with `model: "sonnet"`.
 
 After pushing, report to the user:
 - Whether any fixes were applied (and what was fixed)
