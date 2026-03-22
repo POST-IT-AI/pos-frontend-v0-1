@@ -89,10 +89,12 @@ export function useForgotPassword() {
 
   return useMutation({
     mutationFn: (data: ForgotPasswordRequest) => authApi.forgotPassword(data),
-    onSuccess: (data) => {
+    onSuccess: (data, variables) => {
       if (data.reset_token) {
         toast.success(t("toast.forgotPasswordSent"));
-        navigate("/reset-password", { state: { token: data.reset_token } });
+        navigate("/reset-password", {
+          state: { token: data.reset_token, username: variables.username },
+        });
       } else {
         toast.info(t("toast.forgotPasswordNotFound"));
       }

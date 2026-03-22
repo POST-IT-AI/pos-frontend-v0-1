@@ -2,11 +2,12 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
-// Mock react-router-dom — useLocation returns empty state by default
+// Mock react-router-dom — useLocation is a fn so state can be changed per test
 const mockNavigate = vi.fn();
+const mockUseLocation = vi.fn();
 vi.mock("react-router-dom", () => ({
   useNavigate: () => mockNavigate,
-  useLocation: () => ({ state: null }),
+  useLocation: () => mockUseLocation(),
   Link: ({
     to,
     children,
@@ -42,11 +43,28 @@ describe("ResetPasswordPage", () => {
   beforeEach(() => {
     mockMutate.mockClear();
     mockNavigate.mockClear();
+    mockUseLocation.mockReturnValue({ state: null });
   });
 
-  it("renders all form fields", () => {
+  // ── Field rendering ──────────────────────────────────────────────────────────
+
+  it("renders username field", () => {
     render(<ResetPasswordPage />);
-    expect(screen.getByLabelText("Reset Token")).toBeInTheDocument();
+    expect(screen.getByLabelText("ชื่อผู้ใช้")).toBeInTheDocument();
+  });
+
+  it("username field is disabled", () => {
+    render(<ResetPasswordPage />);
+    expect(screen.getByLabelText("ชื่อผู้ใช้")).toBeDisabled();
+  });
+
+  it("does not render a visible Reset Token field", () => {
+    render(<ResetPasswordPage />);
+    expect(screen.queryByLabelText("Reset Token")).not.toBeInTheDocument();
+  });
+
+  it("renders new password and confirm password fields", () => {
+    render(<ResetPasswordPage />);
     expect(screen.getByLabelText("รหัสผ่านใหม่")).toBeInTheDocument();
     expect(screen.getByLabelText("ยืนยันรหัสผ่านใหม่")).toBeInTheDocument();
   });
@@ -65,15 +83,33 @@ describe("ResetPasswordPage", () => {
     expect(link).toHaveAttribute("href", "/login");
   });
 
-  it("shows validation errors when all fields are empty", async () => {
+  // ── Auto-fill from location.state ────────────────────────────────────────────
+
+  it("pre-fills username from location.state", () => {
+    mockUseLocation.mockReturnValue({
+      state: { token: "tok123", username: "johndoe" },
+    });
+    render(<ResetPasswordPage />);
+    expect(screen.getByLabelText("ชื่อผู้ใช้")).toHaveValue("johndoe");
+  });
+
+  it("shows empty username when location.state has no username", () => {
+    mockUseLocation.mockReturnValue({ state: null });
+    render(<ResetPasswordPage />);
+    expect(screen.getByLabelText("ชื่อผู้ใช้")).toHaveValue("");
+  });
+
+  // ── Validation ───────────────────────────────────────────────────────────────
+
+  it("shows validation error when new password is empty", async () => {
     const user = userEvent.setup();
+    mockUseLocation.mockReturnValue({
+      state: { token: "tok123", username: "johndoe" },
+    });
     render(<ResetPasswordPage />);
 
     await user.click(screen.getByRole("button", { name: "เปลี่ยนรหัสผ่าน" }));
 
-    expect(
-      await screen.findByText("กรุณากรอก reset token"),
-    ).toBeInTheDocument();
     expect(
       await screen.findByText("รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร"),
     ).toBeInTheDocument();
@@ -82,9 +118,11 @@ describe("ResetPasswordPage", () => {
 
   it("shows error when password is too short", async () => {
     const user = userEvent.setup();
+    mockUseLocation.mockReturnValue({
+      state: { token: "tok123", username: "johndoe" },
+    });
     render(<ResetPasswordPage />);
 
-    await user.type(screen.getByLabelText("Reset Token"), "sometoken");
     await user.type(screen.getByLabelText("รหัสผ่านใหม่"), "12345");
     await user.type(screen.getByLabelText("ยืนยันรหัสผ่านใหม่"), "12345");
     await user.click(screen.getByRole("button", { name: "เปลี่ยนรหัสผ่าน" }));
@@ -97,9 +135,11 @@ describe("ResetPasswordPage", () => {
 
   it("shows error when passwords do not match", async () => {
     const user = userEvent.setup();
+    mockUseLocation.mockReturnValue({
+      state: { token: "tok123", username: "johndoe" },
+    });
     render(<ResetPasswordPage />);
 
-    await user.type(screen.getByLabelText("Reset Token"), "sometoken");
     await user.type(screen.getByLabelText("รหัสผ่านใหม่"), "password1");
     await user.type(screen.getByLabelText("ยืนยันรหัสผ่านใหม่"), "password2");
     await user.click(screen.getByRole("button", { name: "เปลี่ยนรหัสผ่าน" }));
@@ -108,27 +148,33 @@ describe("ResetPasswordPage", () => {
     expect(mockMutate).not.toHaveBeenCalled();
   });
 
-  it("calls mutate with token and new_password when form is valid", async () => {
+  // ── Submission ───────────────────────────────────────────────────────────────
+
+  it("submits with token from location.state", async () => {
     const user = userEvent.setup();
+    mockUseLocation.mockReturnValue({
+      state: { token: "tok-from-state", username: "johndoe" },
+    });
     render(<ResetPasswordPage />);
 
-    await user.type(screen.getByLabelText("Reset Token"), "abc123token");
     await user.type(screen.getByLabelText("รหัสผ่านใหม่"), "newpass123");
     await user.type(screen.getByLabelText("ยืนยันรหัสผ่านใหม่"), "newpass123");
     await user.click(screen.getByRole("button", { name: "เปลี่ยนรหัสผ่าน" }));
 
     expect(mockMutate).toHaveBeenCalledOnce();
     expect(mockMutate).toHaveBeenCalledWith({
-      token: "abc123token",
+      token: "tok-from-state",
       new_password: "newpass123",
     });
   });
 
-  it("accepts password at boundary (6 chars)", async () => {
+  it("accepts password at boundary length (6 chars)", async () => {
     const user = userEvent.setup();
+    mockUseLocation.mockReturnValue({
+      state: { token: "sometoken", username: "user1" },
+    });
     render(<ResetPasswordPage />);
 
-    await user.type(screen.getByLabelText("Reset Token"), "sometoken");
     await user.type(screen.getByLabelText("รหัสผ่านใหม่"), "abc123");
     await user.type(screen.getByLabelText("ยืนยันรหัสผ่านใหม่"), "abc123");
     await user.click(screen.getByRole("button", { name: "เปลี่ยนรหัสผ่าน" }));
@@ -138,5 +184,17 @@ describe("ResetPasswordPage", () => {
       token: "sometoken",
       new_password: "abc123",
     });
+  });
+
+  it("does not call mutate when token is missing from state", async () => {
+    const user = userEvent.setup();
+    mockUseLocation.mockReturnValue({ state: null });
+    render(<ResetPasswordPage />);
+
+    await user.type(screen.getByLabelText("รหัสผ่านใหม่"), "newpass123");
+    await user.type(screen.getByLabelText("ยืนยันรหัสผ่านใหม่"), "newpass123");
+    await user.click(screen.getByRole("button", { name: "เปลี่ยนรหัสผ่าน" }));
+
+    expect(mockMutate).not.toHaveBeenCalled();
   });
 });
