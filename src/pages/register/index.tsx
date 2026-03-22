@@ -7,6 +7,7 @@ import {
 import { useRegister } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import {
   Card,
@@ -67,9 +68,8 @@ export function Component() {
 
           <div className="space-y-2">
             <Label htmlFor="password">{t("register.password")}</Label>
-            <Input
+            <PasswordInput
               id="password"
-              type="password"
               placeholder={t("register.password")}
               autoComplete="new-password"
               {...register("password")}
