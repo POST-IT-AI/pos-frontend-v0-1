@@ -23,6 +23,8 @@ pnpm preview      # Preview production build
 - UI components use shadcn/ui v4 (base-nova style, `@base-ui/react` primitives). The Button component does **not** support `asChild` — use `buttonVariants()` with native elements or `render` prop instead.
 - Add new shadcn components via `npx shadcn@latest add <component>`.
 - Tailwind CSS v4 — configuration lives in `src/index.css` (no `tailwind.config` file). CSS variables for theming are defined there.
+- Never hardcode values — use constants, config, enums, or data from the API.
+- If a component file exceeds 500 lines, split it into smaller sub-components.
 
 ## Architecture
 
