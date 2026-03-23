@@ -9,7 +9,7 @@ Follow these steps strictly in order:
 ### Step 1: Understand the Task
 
 - Read relevant existing code to understand current patterns and architecture.
-- If a plan exists in `.claude/output/` for this feature, read and follow it.
+- If a plan exists in `docs/plans/` for this feature, read and follow it.
 - If no plan exists and the task is non-trivial, briefly outline what you will do before coding.
 
 ### Step 2: Implement with Best Practices

@@ -30,7 +30,7 @@ Create a detailed implementation plan that includes:
 ### 3. Save
 After completing the plan, save it as a markdown file at:
 
-`.claude/output/<feature-slug>.md`
+`docs/plans/<feature-slug>.md`
 
 Where `<feature-slug>` is a kebab-case version of the feature name (e.g., `product-search`, `receipt-printing`, `daily-report`).
 

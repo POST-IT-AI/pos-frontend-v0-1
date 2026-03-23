@@ -61,7 +61,7 @@ jobs:
             ### Step 3: Save & Post
             1. Derive `<feature-slug>` as a kebab-case name from the issue title
                (e.g., `product-search`, `receipt-printing`, `daily-report`).
-            2. Save the plan as `.claude/output/<feature-slug>.md` with this frontmatter:
+            2. Save the plan as `docs/plans/<feature-slug>.md` with this frontmatter:
                ```
                ---
                feature: <feature-slug>
@@ -71,7 +71,7 @@ jobs:
                description: <brief description in Thai or English>
                ---
                ```
-            3. Commit the file with message: `docs: add plan for #${{ github.event.issue.number }} - ${{ github.event.issue.title }}`
+            3. Create the `docs/plans/` directory if it doesn't exist, then commit the file with message: `docs: add plan for #${{ github.event.issue.number }} - ${{ github.event.issue.title }}`
             4. Push to the `develop` branch.
             5. Post the full plan as a comment on issue #${{ github.event.issue.number }}.
                Start the comment with: `## Implementation Plan`

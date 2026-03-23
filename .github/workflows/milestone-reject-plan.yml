@@ -91,7 +91,7 @@ jobs:
 
             ### Step 3: Save & Post
             1. Derive `<feature-slug>` as a kebab-case name from the issue title.
-            2. Overwrite the existing plan file at `.claude/output/<feature-slug>.md` with this frontmatter:
+            2. Overwrite the existing plan file at `docs/plans/<feature-slug>.md` with this frontmatter:
                ```
                ---
                feature: <feature-slug>

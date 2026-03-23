@@ -44,7 +44,7 @@ jobs:
 
       - name: Find plan file from output
         run: |
-          FILE=$(grep -rl "issue: ${{ github.event.issue.number }}" .claude/output/ 2>/dev/null | head -1)
+          FILE=$(grep -rl "issue: ${{ github.event.issue.number }}" docs/plans/ 2>/dev/null | head -1)
           if [ -n "$FILE" ]; then
             echo "Found plan file: $FILE"
             echo "OUTPUT_PLAN_FILE=$FILE" >> $GITHUB_ENV
@@ -52,7 +52,7 @@ jobs:
             cat "$FILE" >> $GITHUB_ENV
             echo "EOF" >> $GITHUB_ENV
           else
-            echo "No plan file found in .claude/output/ for issue #${{ github.event.issue.number }}"
+            echo "No plan file found in docs/plans/ for issue #${{ github.event.issue.number }}"
           fi
 
       - name: Create branch
@@ -81,7 +81,7 @@ jobs:
             - Read the implementation plan from the issue comment (below) — follow it exactly.
             - If the plan file below is provided, use it as the authoritative source for implementation details.
 
-            ## Plan File (from `.claude/output/`)
+            ## Plan File (from `docs/plans/`)
 
             ${{ env.OUTPUT_PLAN_CONTENT }}
 

@@ -14,7 +14,7 @@ Use the `/plans` skill with the feature description.
 
 - Research existing code and architecture.
 - Create a detailed implementation plan.
-- Save the plan to `.claude/output/<feature-slug>.md`.
+- Save the plan to `docs/plans/<feature-slug>.md`.
 - Present the plan to the user and **wait for their approval** before proceeding.
 - If the user requests changes to the plan, revise and re-present until approved.
 
@@ -69,7 +69,7 @@ Use the `/deploy` skill. Follow its full git flow **exactly** — do NOT shortcu
 After all steps complete, provide a final summary:
 
 - **Feature**: What was built.
-- **Plan**: Link to the plan file in `.claude/output/`.
+- **Plan**: Link to the plan file in `docs/plans/`.
 - **Files**: List of files created and modified.
 - **Tests**: Number of tests written and pass rate.
 - **Deploy**: Branch pushed and commit hash.
