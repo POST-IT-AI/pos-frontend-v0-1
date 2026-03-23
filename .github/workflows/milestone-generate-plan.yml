@@ -22,9 +22,8 @@ jobs:
         uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          claude_args: "--model claude-opus-4-6"
+          claude_args: "--model claude-opus-4-6 --dangerously-skip-permissions"
           show_full_output: true
-          allowed_tools: "Bash,Read,Write,Edit,Glob,Grep"
           prompt: |
             You are a feature planning assistant for the POS system project.
             Your job is to generate a detailed implementation plan for the GitHub issue below.
