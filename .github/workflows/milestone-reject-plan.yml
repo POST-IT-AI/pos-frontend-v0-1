@@ -43,7 +43,7 @@ jobs:
         uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          claude_args: "--model claude-opus-4-6 --dangerously-skip-permissions"
+          claude_args: "--model claude-sonnet-4-6 --dangerously-skip-permissions"
           prompt: |
             You are a feature planning assistant for the POS system project.
             The previous implementation plan was rejected. Your job is to revise it based on the feedback below.
