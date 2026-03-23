@@ -10,6 +10,8 @@ pnpm lint         # ESLint
 pnpm lint:fix     # ESLint with auto-fix
 pnpm format       # Prettier on src/
 pnpm preview      # Preview production build
+pnpm test         # Vitest (run once)
+pnpm test:watch   # Vitest (watch mode)
 ```
 
 ## Rules
@@ -18,13 +20,16 @@ pnpm preview      # Preview production build
 - Forms must use React Hook Form + Zod (`zod/v4` import) — never raw useState for form state.
 - Server state (products, orders, users) uses TanStack Query hooks in `src/hooks/` — never store in Zustand.
 - Client-only transient state (cart) uses Zustand.
-- All API calls go through the shared Axios instance in `src/api/axios.ts` — never import axios directly elsewhere.
+- Two Axios instances in `src/api/axios.ts` — use `api` for general endpoints, `authAxios` for auth-service endpoints (login, me, refresh). Never import axios directly elsewhere.
+- Environment variables are typed and validated in `src/lib/env.ts` — always use this file, never access `import.meta.env` directly.
 - Toast notifications use `sonner` — import `{ toast }` from `"sonner"`.
 - UI components use shadcn/ui v4 (base-nova style, `@base-ui/react` primitives). The Button component does **not** support `asChild` — use `buttonVariants()` with native elements or `render` prop instead.
 - Add new shadcn components via `npx shadcn@latest add <component>`.
 - Tailwind CSS v4 — configuration lives in `src/index.css` (no `tailwind.config` file). CSS variables for theming are defined there.
 - Never hardcode values — use constants, config, enums, or data from the API.
 - If a component file exceeds 500 lines, split it into smaller sub-components.
+- Validation schemas are **hook-based and i18n-aware** — use `useMemo` + `useTranslation()` for error messages. See `src/lib/validations/auth.ts` for the pattern.
+- All UI text must use `useTranslation()` from `react-i18next` — never hardcode display strings.
 
 ## Architecture
 
@@ -66,6 +71,32 @@ productKeys.list({})   // ["products", "list", filters]
 productKeys.detail(id) // ["products", "detail", id]
 ```
 Mutations invalidate via these keys. Follow this pattern for new domains.
+
+## Testing
+
+- Framework: Vitest + `@testing-library/react` + `jsdom`
+- API mocking: MSW (`msw`) — do not mock fetch/axios directly
+- Test setup file: `src/test/setup.ts`
+- Store tests live alongside stores (e.g., `src/store/auth.test.ts`)
+
+## Milestone Workflow
+
+GitHub Actions automate feature development via milestones:
+
+| Milestone | Workflow | Action |
+|-----------|----------|--------|
+| `DOING` | `milestone-generate-plan.yml` | Claude (Opus 4.6) generates an implementation plan as an issue comment |
+| `WAITING_APPROVE_PLAN` | — | Waiting for human review of the plan |
+| `APPROVE_PLAN` | `milestone-implement.yml` | Claude (Sonnet 4.6) implements the plan, commits, pushes, and opens a PR |
+| `WAITING_APPROVE_CODE` | — | Waiting for human review of the PR |
+| Rejected plan | `milestone-reject-plan.yml` | Claude revises the plan based on feedback |
+| Rejected code | `milestone-reject-code.yml` | Claude revises the implementation based on feedback |
+| `DONE` | `milestone-done.yml` | Closes the issue |
+
+### Implementation Guidelines (applied automatically)
+The implement workflow enforces these skills on every run:
+- `/responsive` — all UI must support mobile, tablet, and desktop breakpoints
+- `/react-best-practices` — follow React/Next.js performance and rendering best practices
 
 ### Adding a New API Domain
 1. Add types in `src/types/index.ts`
