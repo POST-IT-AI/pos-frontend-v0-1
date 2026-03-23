@@ -1,0 +1,124 @@
+name: "Milestone: Reject Plan"
+
+on:
+  issues:
+    types: [milestoned]
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  reject-plan:
+    if: github.event.issue.milestone && github.event.issue.milestone.title == 'REJECT_PLAN'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: develop
+
+      - name: Get feedback and previous plan
+        id: context
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Get the latest plan comment
+          gh issue view ${{ github.event.issue.number }} --json comments --jq \
+            '.comments | map(select(.body | contains("## Implementation Plan"))) | last | .body' > /tmp/previous-plan.md
+
+          # Get the latest human comment (feedback) — last comment not from github-actions[bot]
+          gh issue view ${{ github.event.issue.number }} --json comments --jq \
+            '.comments | map(select(.author.login != "github-actions[bot]")) | last | .body' > /tmp/feedback.md
+
+          echo "PREVIOUS_PLAN<<EOF" >> $GITHUB_ENV
+          cat /tmp/previous-plan.md >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+          echo "FEEDBACK<<EOF" >> $GITHUB_ENV
+          cat /tmp/feedback.md >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - name: Re-generate plan with Claude
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          claude_args: "--model claude-opus-4-6"
+          prompt: |
+            You are a feature planning assistant for the POS system project.
+            The previous implementation plan was rejected. Your job is to revise it based on the feedback below.
+
+            ## Issue #${{ github.event.issue.number }}: ${{ github.event.issue.title }}
+
+            ${{ github.event.issue.body }}
+
+            ## Previous Plan (REJECTED)
+
+            ${{ env.PREVIOUS_PLAN }}
+
+            ## Rejection Feedback
+
+            ${{ env.FEEDBACK }}
+
+            ---
+
+            Follow these steps strictly in order:
+
+            ### Step 1: Research
+            - Read CLAUDE.md to understand project structure, tech stack, and conventions.
+            - Re-read relevant existing code with the feedback in mind.
+            - Identify what the previous plan got wrong or missed.
+            - Check for existing utilities, components, or hooks that can be reused
+              (check `src/hooks/`, `src/api/`, `src/lib/validations/` for examples).
+
+            ### Step 2: Plan
+            Create a revised implementation plan that addresses all feedback. Include:
+
+            - **Context**: Why this feature is needed and what problem it solves.
+            - **Scope**: What is included and what is explicitly out of scope.
+            - **What Changed**: Clearly explain what was changed from the previous plan and why.
+            - **Technical Design**:
+              - Data types/interfaces needed
+              - API endpoints to integrate with (or create)
+              - Zustand store changes (if any)
+              - TanStack Query hooks needed
+              - Zod validation schemas
+              - New pages and routes
+              - New components
+            - **Implementation Steps**: Ordered list of discrete steps to implement.
+            - **Files to Create/Modify**: Explicit list of file paths.
+            - **Verification**: How to test that the feature works end-to-end.
+
+            ### Step 3: Save & Post
+            1. Derive `<feature-slug>` as a kebab-case name from the issue title.
+            2. Overwrite the existing plan file at `.claude/output/<feature-slug>.md` with this frontmatter:
+               ```
+               ---
+               feature: <feature-slug>
+               issue: ${{ github.event.issue.number }}
+               status: to-do
+               created: <YYYY-MM-DD HH:MM:SS>
+               description: <brief description in Thai or English>
+               ---
+               ```
+            3. Commit the file with message: `docs: revise plan for #${{ github.event.issue.number }} - ${{ github.event.issue.title }}`
+            4. Push to the `develop` branch.
+            5. Post the revised plan as a comment on issue #${{ github.event.issue.number }}.
+               Start the comment with: `## Implementation Plan`
+
+            ---
+
+            ### Rules
+            - Follow all project conventions from CLAUDE.md.
+            - Prefer reusing existing patterns over creating new ones.
+            - New pages must export `function Component()` for lazy loading compatibility.
+            - Use the query key factory pattern for new TanStack Query hooks.
+            - All forms must use React Hook Form + Zod.
+            - Validation schemas must be hook-based and i18n-aware (see `src/lib/validations/auth.ts`).
+            - All UI text must use `useTranslation()` — Thai language for user-facing strings.
+
+      - name: Update milestone
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh issue edit ${{ github.event.issue.number }} \
+            --milestone "WAITING_APPROVE_PLAN"

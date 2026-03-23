@@ -1,0 +1,162 @@
+name: "Milestone: Implement"
+
+on:
+  issues:
+    types: [milestoned]
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  implement:
+    if: github.event.issue.milestone && github.event.issue.milestone.title == 'APPROVE_PLAN'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: develop
+
+      - name: Get plan from issue comments
+        id: plan
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh issue view ${{ github.event.issue.number }} --json comments --jq '.comments | map(select(.body | contains("## Implementation Plan"))) | last | .body' > /tmp/plan.md
+          echo "Plan found: $(wc -l < /tmp/plan.md) lines"
+          echo "PLAN_CONTENT<<EOF" >> $GITHUB_ENV
+          cat /tmp/plan.md >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - name: Parse task name from issue
+        id: meta
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TASK_NAME=$(gh issue view ${{ github.event.issue.number }} --json body --jq '.body' | grep -A1 "### Task Name" | tail -1 | tr -d '[:space:]' | sed 's/[^a-zA-Z0-9-]/-/g' | sed 's/-\+/-/g' | sed 's/^-\|-$//g')
+          if [ -z "$TASK_NAME" ]; then
+            TASK_NAME="task-${{ github.event.issue.number }}"
+          fi
+          echo "task_name=$TASK_NAME" >> "$GITHUB_OUTPUT"
+          echo "branch=milestone/${{ github.event.issue.number }}-$TASK_NAME" >> "$GITHUB_OUTPUT"
+
+      - name: Find plan file from output
+        run: |
+          FILE=$(grep -rl "issue: ${{ github.event.issue.number }}" .claude/output/ 2>/dev/null | head -1)
+          if [ -n "$FILE" ]; then
+            echo "Found plan file: $FILE"
+            echo "OUTPUT_PLAN_FILE=$FILE" >> $GITHUB_ENV
+            echo "OUTPUT_PLAN_CONTENT<<EOF" >> $GITHUB_ENV
+            cat "$FILE" >> $GITHUB_ENV
+            echo "EOF" >> $GITHUB_ENV
+          else
+            echo "No plan file found in .claude/output/ for issue #${{ github.event.issue.number }}"
+          fi
+
+      - name: Create branch
+        run: |
+          git checkout -b ${{ steps.meta.outputs.branch }}
+
+      - name: Implement with Claude
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          claude_args: "--model claude-sonnet-4-6"
+          prompt: |
+            You are an implementation assistant for the POS system project.
+            Implement the feature described in issue #${{ github.event.issue.number }} below.
+
+            ## Issue #${{ github.event.issue.number }}: ${{ github.event.issue.title }}
+
+            ${{ github.event.issue.body }}
+
+            ---
+
+            Follow these steps strictly in order:
+
+            ### Step 1: Understand the Task
+            - Read CLAUDE.md to understand project structure, tech stack, and conventions.
+            - Read the implementation plan from the issue comment (below) — follow it exactly.
+            - If the plan file below is provided, use it as the authoritative source for implementation details.
+
+            ## Plan File (from `.claude/output/`)
+
+            ${{ env.OUTPUT_PLAN_CONTENT }}
+
+            ### Step 2: Implement with Best Practices
+            - Eliminate render waterfalls and unnecessary re-renders.
+            - Optimize component structure and bundle impact.
+            - Use proper memoization, lazy loading, and code splitting where appropriate.
+            - Follow React 19 patterns and hooks best practices.
+            - Follow all project conventions from CLAUDE.md:
+              - TanStack Query for server state, Zustand for client state
+              - React Hook Form + Zod (`zod/v4` import) for forms
+              - Validation schemas must be hook-based and i18n-aware (see `src/lib/validations/auth.ts`)
+              - All UI text via `useTranslation()` — Thai language for user-facing strings
+              - shadcn/ui v4 components, `api`/`authAxios` instances from `src/api/axios.ts`
+            - Implement all necessary code: types, API modules, hooks, validations, components, pages, routes.
+
+            ### Step 3: Responsive Design
+            Apply mobile/tablet/desktop breakpoints to any new pages or layout components:
+            - Use `p-4 md:p-6` padding, responsive grids, and touch-friendly targets.
+            - Follow the breakpoint strategy in `.claude/commands/responsive.md`.
+            - Skip this step only if the feature adds no new UI.
+
+            ### Step 4: Code Quality Review
+            Review all changed code:
+            - Check for code reuse opportunities — prefer existing hooks, utilities, and components.
+            - Remove unnecessary complexity.
+            - Ensure consistency with surrounding code patterns.
+
+            ### Step 5: Verify Build
+            #### 5a. ESLint
+            ```bash
+            pnpm lint
+            ```
+            - If there are lint errors, auto-fix with `pnpm lint:fix`.
+            - If errors remain after auto-fix, manually fix them.
+            - Re-run `pnpm lint` to confirm all errors are resolved.
+
+            #### 5b. TypeScript Check + Build
+            ```bash
+            pnpm build
+            ```
+            - Fix any TypeScript errors until `pnpm build` passes cleanly.
+
+            #### 5c. Post-fix Check
+            - If any files were modified in Step 5a or 5b, re-review code quality and re-run `pnpm build` once more.
+            - Skip if no fixes were needed.
+
+            ### Step 6: Commit, Push & Create PR
+            1. Commit all changes with message: `feat: implement milestone #${{ github.event.issue.number }} - ${{ github.event.issue.title }}`
+            2. Push the branch.
+            3. Create a PR targeting `develop` with:
+               - Title: `${{ github.event.issue.title }}`
+               - Body that includes: `Closes #${{ github.event.issue.number }}`, a summary of files created/modified, and any notable design decisions.
+
+            ---
+
+            ## Implementation Plan
+
+            ${{ env.PLAN_CONTENT }}
+
+            ---
+
+            ### Rules
+            - Always use `pnpm` — never npm or yarn.
+            - Never use `any` as a TypeScript type.
+            - Do not skip the lint or build step — both must pass before committing.
+            - Follow the plan precisely. Do not skip steps or add unrequested features.
+
+      - name: Post PR link and update milestone
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Find the PR created for this branch
+          PR_URL=$(gh pr list --head "${{ steps.meta.outputs.branch }}" --json url --jq '.[0].url')
+          if [ -n "$PR_URL" ]; then
+            gh issue comment ${{ github.event.issue.number }} --body "PR created: $PR_URL"
+          fi
+          gh issue edit ${{ github.event.issue.number }} \
+            --milestone "WAITING_APPROVE_CODE"

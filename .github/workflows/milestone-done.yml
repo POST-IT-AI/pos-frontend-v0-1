@@ -1,0 +1,53 @@
+name: "Milestone: Done"
+
+on:
+  issues:
+    types: [milestoned]
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  done:
+    if: github.event.issue.milestone && github.event.issue.milestone.title == 'APPROVE_CODE'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Find and merge PR
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ISSUE_NUMBER=${{ github.event.issue.number }}
+
+          # Find PR linked to this issue (search in comments for PR URL or linked PRs)
+          PR_NUMBER=$(gh issue view "$ISSUE_NUMBER" --json comments --jq \
+            '.comments | map(select(.body | test("PR created:"))) | last | .body' \
+            | grep -oP 'pull/\K[0-9]+' || true)
+
+          # Fallback: search PRs that mention this issue
+          if [ -z "$PR_NUMBER" ]; then
+            PR_NUMBER=$(gh pr list --search "Closes #$ISSUE_NUMBER" --json number --jq '.[0].number' || true)
+          fi
+
+          # Fallback: search milestone branches
+          if [ -z "$PR_NUMBER" ]; then
+            PR_NUMBER=$(gh pr list --head "milestone/$ISSUE_NUMBER" --json number --jq '.[0].number' || true)
+          fi
+
+          if [ -z "$PR_NUMBER" ]; then
+            gh issue comment "$ISSUE_NUMBER" --body "Could not find a PR to merge. Please merge manually and close the issue."
+            exit 1
+          fi
+
+          echo "Merging PR #$PR_NUMBER"
+          gh pr merge "$PR_NUMBER" --squash --delete-branch
+
+      - name: Close issue and update milestone
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh issue edit ${{ github.event.issue.number }} \
+            --milestone "DONE"
+          gh issue close ${{ github.event.issue.number }} \
+            --comment "Milestone completed — PR merged to develop"

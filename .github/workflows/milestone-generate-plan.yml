@@ -1,0 +1,93 @@
+name: "Milestone: Generate Plan"
+
+on:
+  issues:
+    types: [milestoned]
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  generate-plan:
+    if: github.event.issue.milestone && github.event.issue.milestone.title == 'DOING'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: develop
+
+      - name: Generate plan with Claude
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          claude_args: "--model claude-opus-4-6"
+          prompt: |
+            You are a feature planning assistant for the POS system project.
+            Your job is to generate a detailed implementation plan for the GitHub issue below.
+
+            ## Issue #${{ github.event.issue.number }}: ${{ github.event.issue.title }}
+
+            ${{ github.event.issue.body }}
+
+            ---
+
+            ### Step 1: Research
+            - Read CLAUDE.md to understand project structure, tech stack, and conventions.
+            - Read relevant existing code to understand current patterns and architecture.
+            - Identify files that will need to be created or modified.
+            - Check for existing utilities, components, or hooks that can be reused
+              (check `src/hooks/`, `src/api/`, `src/lib/validations/` for examples).
+
+            ### Step 2: Plan
+            Create a detailed implementation plan that includes:
+
+            - **Context**: Why this feature is needed and what problem it solves.
+            - **Scope**: What is included and what is explicitly out of scope.
+            - **Technical Design**:
+              - Data types/interfaces needed
+              - API endpoints to integrate with (or create)
+              - Zustand store changes (if any)
+              - TanStack Query hooks needed
+              - Zod validation schemas
+              - New pages and routes
+              - New components
+            - **Implementation Steps**: Ordered list of discrete steps to implement.
+            - **Files to Create/Modify**: Explicit list of file paths.
+            - **Verification**: How to test that the feature works end-to-end.
+
+            ### Step 3: Save & Post
+            1. Derive `<feature-slug>` as a kebab-case name from the issue title
+               (e.g., `product-search`, `receipt-printing`, `daily-report`).
+            2. Save the plan as `.claude/output/<feature-slug>.md` with this frontmatter:
+               ```
+               ---
+               feature: <feature-slug>
+               issue: ${{ github.event.issue.number }}
+               status: to-do
+               created: <YYYY-MM-DD HH:MM:SS>
+               description: <brief description in Thai or English>
+               ---
+               ```
+            3. Commit the file with message: `docs: add plan for #${{ github.event.issue.number }} - ${{ github.event.issue.title }}`
+            4. Push to the `develop` branch.
+            5. Post the full plan as a comment on issue #${{ github.event.issue.number }}.
+               Start the comment with: `## Implementation Plan`
+
+            ---
+
+            ### Rules
+            - Follow all project conventions from CLAUDE.md.
+            - Prefer reusing existing patterns over creating new ones.
+            - New pages must export `function Component()` for lazy loading compatibility.
+            - Use the query key factory pattern for new TanStack Query hooks.
+            - All forms must use React Hook Form + Zod.
+            - Validation schemas must be hook-based and i18n-aware (see `src/lib/validations/auth.ts`).
+            - All UI text must use `useTranslation()` — Thai language for user-facing strings.
+
+      - name: Update milestone
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh issue edit ${{ github.event.issue.number }} \
+            --milestone "WAITING_APPROVE_PLAN"

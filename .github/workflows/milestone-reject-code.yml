@@ -1,0 +1,147 @@
+name: "Milestone: Reject Code"
+
+on:
+  issues:
+    types: [milestoned]
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  reject-code:
+    if: github.event.issue.milestone && github.event.issue.milestone.title == 'REJECT_CODE'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Find PR branch
+        id: pr
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ISSUE_NUMBER=${{ github.event.issue.number }}
+
+          # Find PR linked to this issue
+          PR_NUMBER=$(gh issue view "$ISSUE_NUMBER" --json comments --jq \
+            '.comments | map(select(.body | test("PR created:"))) | last | .body' \
+            | grep -oP 'pull/\K[0-9]+' || true)
+
+          if [ -z "$PR_NUMBER" ]; then
+            PR_NUMBER=$(gh pr list --head "milestone/$ISSUE_NUMBER" --json number --jq '.[0].number' || true)
+          fi
+
+          if [ -z "$PR_NUMBER" ]; then
+            gh issue comment "$ISSUE_NUMBER" --body "Could not find a PR to fix. Please check manually."
+            exit 1
+          fi
+
+          BRANCH=$(gh pr view "$PR_NUMBER" --json headRefName --jq '.headRefName')
+          echo "pr_number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
+          echo "branch=$BRANCH" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.pr.outputs.branch }}
+
+      - name: Get feedback
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Get the latest human comment (feedback)
+          gh issue view ${{ github.event.issue.number }} --json comments --jq \
+            '.comments | map(select(.author.login != "github-actions[bot]")) | last | .body' > /tmp/feedback.md
+
+          # Also get PR review comments if any
+          gh pr view ${{ steps.pr.outputs.pr_number }} --json reviews --jq \
+            '.reviews | map(select(.state == "CHANGES_REQUESTED")) | last | .body' > /tmp/pr-review.md 2>/dev/null || true
+
+          echo "FEEDBACK<<EOF" >> $GITHUB_ENV
+          cat /tmp/feedback.md >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+          echo "PR_REVIEW<<EOF" >> $GITHUB_ENV
+          cat /tmp/pr-review.md >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - name: Fix code with Claude
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          claude_args: "--model claude-sonnet-4-6"
+          prompt: |
+            You are an implementation assistant for the POS system project.
+            The code was rejected by a human reviewer. Fix it based on the feedback below.
+
+            ## Issue #${{ github.event.issue.number }}: ${{ github.event.issue.title }}
+
+            ${{ github.event.issue.body }}
+
+            ## Rejection Feedback (from issue comment)
+
+            ${{ env.FEEDBACK }}
+
+            ## PR Review Feedback
+
+            ${{ env.PR_REVIEW }}
+
+            ---
+
+            Follow these steps strictly in order:
+
+            ### Step 1: Understand the Feedback
+            - Read CLAUDE.md to understand project structure, tech stack, and conventions.
+            - Read the rejection feedback carefully — understand exactly what needs to change.
+            - Read the relevant files that need to be fixed.
+
+            ### Step 2: Fix with Best Practices
+            - Only change what the feedback asks for. Do not refactor unrelated code.
+            - Follow all project conventions from CLAUDE.md:
+              - TanStack Query for server state, Zustand for client state
+              - React Hook Form + Zod (`zod/v4` import) for forms
+              - Validation schemas must be hook-based and i18n-aware (see `src/lib/validations/auth.ts`)
+              - All UI text via `useTranslation()` — Thai language for user-facing strings
+              - shadcn/ui v4 components, `api`/`authAxios` instances from `src/api/axios.ts`
+
+            ### Step 3: Responsive Design
+            If the feedback involves UI changes, ensure all affected pages/components still support
+            mobile/tablet/desktop breakpoints. Skip if no UI was changed.
+
+            ### Step 4: Verify Build
+            #### 4a. ESLint
+            ```bash
+            pnpm lint
+            ```
+            - If there are lint errors, auto-fix with `pnpm lint:fix`.
+            - If errors remain after auto-fix, manually fix them.
+            - Re-run `pnpm lint` to confirm all errors are resolved.
+
+            #### 4b. TypeScript Check + Build
+            ```bash
+            pnpm build
+            ```
+            - Fix any TypeScript errors until `pnpm build` passes cleanly.
+
+            #### 4c. Post-fix Check
+            - If any files were modified in Step 4a or 4b, re-review and re-run `pnpm build` once more.
+            - Skip if no fixes were needed.
+
+            ### Step 5: Commit & Push
+            1. Commit the fixes with message: `fix: address review feedback for milestone #${{ github.event.issue.number }}`
+            2. Push to the current branch.
+
+            ---
+
+            ### Rules
+            - Always use `pnpm` — never npm or yarn.
+            - Never use `any` as a TypeScript type.
+            - Do not skip the lint or build step — both must pass before committing.
+            - Only fix what the feedback requests. Do not add unrequested changes.
+
+      - name: Update milestone and notify
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh issue edit ${{ github.event.issue.number }} \
+            --milestone "WAITING_APPROVE_CODE"
+          gh issue comment ${{ github.event.issue.number }} \
+            --body "Code has been updated based on feedback. Please review PR #${{ steps.pr.outputs.pr_number }} again."
