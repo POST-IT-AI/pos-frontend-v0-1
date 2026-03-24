@@ -19,6 +19,7 @@ jobs:
         id: pr
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
         run: |
           ISSUE_NUMBER=${{ github.event.issue.number }}
 
@@ -47,6 +48,7 @@ jobs:
       - name: Get feedback
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
         run: |
           # Get the latest human comment (feedback)
           gh issue view ${{ github.event.issue.number }} --json comments --jq \

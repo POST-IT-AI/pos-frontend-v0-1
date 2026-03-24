@@ -17,6 +17,7 @@ jobs:
       - name: Find and merge PR
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
         run: |
           ISSUE_NUMBER=${{ github.event.issue.number }}
 
@@ -46,6 +47,7 @@ jobs:
       - name: Close issue and update milestone
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
         run: |
           gh issue edit ${{ github.event.issue.number }} \
             --milestone "DONE"
