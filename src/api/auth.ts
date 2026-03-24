@@ -38,4 +38,9 @@ export const authApi = {
     authAxios
       .post<BackendResponse<null>>("/api/v1/auth/reset-password", data)
       .then((r) => r.data),
+
+  logout: () =>
+    authAxios
+      .post<BackendResponse<null>>("/api/v1/auth/logout")
+      .then((r) => r.data),
 };
