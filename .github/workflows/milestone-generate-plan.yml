@@ -18,12 +18,24 @@ jobs:
         with:
           ref: develop
 
+      - name: Detect model from labels
+        id: issue
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          LABELS=$(gh issue view ${{ github.event.issue.number }} --json labels --jq '[.labels[].name] | join(",")')
+          if echo "$LABELS" | grep -q "model:sonnet"; then
+            MODEL="claude-sonnet-4-6"
+          else
+            MODEL="claude-opus-4-6"
+          fi
+          echo "model=$MODEL" >> $GITHUB_OUTPUT
+
       - name: Generate plan with Claude
         uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          claude_args: "--model claude-sonnet-4-6 --dangerously-skip-permissions"
-          show_full_output: true
+          claude_args: "--model ${{ steps.issue.outputs.model }} --dangerously-skip-permissions"
           prompt: |
             You are a feature planning assistant for the POS system project.
             Your job is to generate a detailed implementation plan for the GitHub issue below.

@@ -39,11 +39,24 @@ jobs:
           cat /tmp/feedback.md >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
 
+      - name: Detect model from labels
+        id: issue
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          LABELS=$(gh issue view ${{ github.event.issue.number }} --json labels --jq '[.labels[].name] | join(",")')
+          if echo "$LABELS" | grep -q "model:sonnet"; then
+            MODEL="claude-sonnet-4-6"
+          else
+            MODEL="claude-opus-4-6"
+          fi
+          echo "model=$MODEL" >> $GITHUB_OUTPUT
+
       - name: Re-generate plan with Claude
         uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          claude_args: "--model claude-sonnet-4-6 --dangerously-skip-permissions"
+          claude_args: "--model ${{ steps.issue.outputs.model }} --dangerously-skip-permissions"
           prompt: |
             You are a feature planning assistant for the POS system project.
             The previous implementation plan was rejected. Your job is to revise it based on the feedback below.
