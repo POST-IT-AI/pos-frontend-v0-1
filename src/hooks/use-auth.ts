@@ -76,11 +76,19 @@ export function useLogout() {
   const navigate = useNavigate();
   const { t } = useTranslation("auth");
 
-  return () => {
-    logout();
-    navigate("/login");
-    toast.success(t("toast.logoutSuccess"));
-  };
+  return useMutation({
+    mutationFn: () => authApi.logout(),
+    onSettled: () => {
+      logout();
+      navigate("/login");
+    },
+    onSuccess: () => {
+      toast.success(t("toast.logoutSuccess"));
+    },
+    onError: () => {
+      toast.success(t("toast.logoutSuccess"));
+    },
+  });
 }
 
 export function useForgotPassword() {

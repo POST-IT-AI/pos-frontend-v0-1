@@ -17,7 +17,7 @@ import { ThemeSwitcher } from "@/components/shared/theme-switcher";
 
 export function AppHeader() {
   const user = useAuthStore((s) => s.user);
-  const logout = useLogout();
+  const logoutMutation = useLogout();
   const { toggleSidebarOpen } = useUIStore();
   const { t } = useTranslation("common");
 
@@ -64,7 +64,11 @@ export function AppHeader() {
               {t("header.profile")}
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={logout} className="text-destructive">
+            <DropdownMenuItem
+              onClick={() => logoutMutation.mutate()}
+              disabled={logoutMutation.isPending}
+              className="text-destructive"
+            >
               <LogOut className="mr-2 h-4 w-4" />
               {t("header.logout")}
             </DropdownMenuItem>

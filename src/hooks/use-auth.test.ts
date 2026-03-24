@@ -18,12 +18,21 @@ vi.mock("sonner", () => ({
 vi.mock("@/api/auth", () => ({
   authApi: {
     forgotPassword: vi.fn(),
+    logout: vi.fn(),
   },
 }));
 
+// Mock auth store
+const mockStoreLogout = vi.fn();
+vi.mock("@/store/auth", () => ({
+  useAuthStore: (selector: (s: { logout: () => void }) => unknown) =>
+    selector({ logout: mockStoreLogout }),
+}));
+
 // Import after mocks
-import { useForgotPassword } from "@/hooks/use-auth";
+import { useForgotPassword, useLogout } from "@/hooks/use-auth";
 import { authApi } from "@/api/auth";
+import { toast } from "sonner";
 
 const createWrapper = () => {
   const queryClient = new QueryClient({
@@ -76,5 +85,74 @@ describe("useForgotPassword", () => {
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
     expect(mockNavigate).not.toHaveBeenCalled();
+  });
+});
+
+describe("useLogout", () => {
+  beforeEach(() => {
+    mockNavigate.mockClear();
+    mockStoreLogout.mockClear();
+    vi.mocked(authApi.logout).mockClear();
+    vi.mocked(toast.success).mockClear();
+  });
+
+  it("calls logout API and clears local state on success", async () => {
+    vi.mocked(authApi.logout).mockResolvedValue({
+      status: "success",
+      message: "Logged out successfully",
+      data: null,
+    });
+
+    const { result } = renderHook(() => useLogout(), {
+      wrapper: createWrapper(),
+    });
+
+    act(() => {
+      result.current.mutate();
+    });
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+
+    expect(authApi.logout).toHaveBeenCalledTimes(1);
+    expect(mockStoreLogout).toHaveBeenCalled();
+    expect(mockNavigate).toHaveBeenCalledWith("/login");
+    expect(toast.success).toHaveBeenCalled();
+  });
+
+  it("clears local state even when API call fails", async () => {
+    vi.mocked(authApi.logout).mockRejectedValue(new Error("Network error"));
+
+    const { result } = renderHook(() => useLogout(), {
+      wrapper: createWrapper(),
+    });
+
+    act(() => {
+      result.current.mutate();
+    });
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
+
+    expect(mockStoreLogout).toHaveBeenCalled();
+    expect(mockNavigate).toHaveBeenCalledWith("/login");
+  });
+
+  it("navigates to /login after logout", async () => {
+    vi.mocked(authApi.logout).mockResolvedValue({
+      status: "success",
+      message: "Logged out successfully",
+      data: null,
+    });
+
+    const { result } = renderHook(() => useLogout(), {
+      wrapper: createWrapper(),
+    });
+
+    act(() => {
+      result.current.mutate();
+    });
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+
+    expect(mockNavigate).toHaveBeenCalledWith("/login");
   });
 });
